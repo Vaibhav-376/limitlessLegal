@@ -75,6 +75,14 @@ export default function Home() {
     },
   ];
 
+  const testimonials = [
+    { id: 1, desc: "Didn’t even plan to sign up, just booked a strategy call to see what they’d say. Broke down exactly where our agency flawed.", img: "https://placehold.co/50x50", name: "Dean Watson", designation: "Managing Partner" },
+    { id: 2, desc: "The entire experience, from consultation to execution, was seamless. Rudi had a genuine commitment to our success...", img: "https://placehold.co/50x50", name: "Rosa Nobarani", designation: "Top 30 Lawyer Finalist" },
+    { id: 3, desc: "We used their SEO articles for wills and estates. enquiries started coming in within a month. Best decision we made...", img: "https://placehold.co/50x50", name: "James Carter", designation: "Marketing Director" },
+    { id: 4, desc: "The intake flows they set up saved our receptionist hours each day. Really, really helpful. Thank you.", img: "https://placehold.co/50x50", name: "Zhong Cho", designation: "Law Firm Owner" },
+    { id: 5, desc: "We are ranked 1st for our practice area for so many major terms in Saudi. It was honestly such excellent work. ", img: "https://placehold.co/50x50", name: "", designation: "Law Firm Consultant" },
+    { id: 6, desc: "Read the book, joined the Skool group, and implemented 2 things. Got a consult request by the next morning... ", img: "https://placehold.co/50x50", name: "Priya Sharma", designation: "Law Firm Owner" },
+  ]
   return (
     <div className="">
       <section className="relative flex items-center justify-center h-screen text-white overflow-hidden">
@@ -215,8 +223,43 @@ export default function Home() {
                   </li>
                 ))}
               </ul>
+            </div>
+          ))}
+        </div>
+      </section>
 
-              
+
+      <section className="text-white py-20 bg-[#010103] relative">
+        <div className="max-w-4xl mx-auto text-center px-4">
+          <h2 className="text-3xl md:text-5xl font-bold mb-6">
+            Trusted by Law firms{" "}
+            <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+              All Over the World
+            </span>
+          </h2>
+          <p>Discover the key benefits of partnering with us.</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 px-4 max-w-6xl mx-auto">
+          {testimonials.map((testimonial) => (
+            <div
+              key={testimonial.id}
+              className="group border border-white/10 p-6 rounded-2xl bg-gradient-to-b from-white/5 to-white/[0.02] hover:from-indigo-600/10 hover:to-purple-600/10 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-indigo-500/20 flex flex-col items-center text-center">
+              {testimonial.img && (
+                <img
+                  src={testimonial.img}
+                  alt={testimonial.name || "Client"}
+                  className="w-16 h-16 rounded-full mb-4 object-cover"
+                />
+              )}
+
+              <p className="text-gray-300 leading-relaxed">{testimonial.desc}</p>
+              {testimonial.name && (
+                <h3 className="mt-4 text-2xl font-bold mb-1 bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                  {testimonial.name}
+                </h3>
+              )}
+              <p className="text-lg font-semibold text-gray-400">{testimonial.designation}</p>
             </div>
           ))}
         </div>
