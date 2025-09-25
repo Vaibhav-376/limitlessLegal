@@ -6,10 +6,11 @@ export default function Navbar() {
   return (
     <nav className="fixed top-4 left-1/2 z-50 w-[90%] max-w-6xl -translate-x-1/2 rounded-xl border border-white/10 bg-black/60 backdrop-blur-md">
       <div className="flex items-center justify-between px-6 py-3">
-        <div className="flex items-center gap-2">
+        <Link href={"/"}><div className="flex items-center gap-2">
           <div className="h-6 w-6 rounded-full bg-white" />
           <span className="font-semibold text-white">Limitless Legal</span>
         </div>
+        </Link>
 
         <div className="hidden md:flex items-center gap-8 text-sm text-gray-300">
           <Link href="#process" className="hover:text-white transition">
