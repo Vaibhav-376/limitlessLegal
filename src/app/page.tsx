@@ -1,8 +1,69 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import ThreeScene from "@/component/ThreeScene";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+type Slot = {
+  id: string;
+  date: string;
+  booked: boolean;
+};
 
 export default function Home() {
+  const [slots, setSlots] = useState<Slot[]>([]);
+  const [selectedSlot, setSelectedSlot] = useState<string>("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const fetchSlots = async () => {
+    try {
+      const res = await fetch("/api/slots");
+      const data = await res.json();
+      setSlots(data);
+    } catch (err) {
+      console.error("Failed to fetch slots:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchSlots();
+  }, []);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    fetch("/api/slots")
+      .then(res => res.json())
+      .then(data => setSlots(data))
+      .catch(err => console.error("Failed to fetch slots:", err));
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedSlot || !name || !email || !phone) {
+      return alert("All fields are required.");
+    }
+
+    try {
+      const res = await fetch("/api/booking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: selectedSlot, name, email, phone }),
+      });
+
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "Failed to book slot");
+
+      alert("Booking successful!");
+      router.push(`/success/${selectedSlot}`);
+    } catch (error) {
+      console.error(error);
+      alert(error instanceof Error ? error.message : "Failed to book slot.");
+    }
+  };
   const cards = [
     {
       id: 1,
@@ -132,33 +193,59 @@ export default function Home() {
     },
   ];
 
+  const faqs = [
+    {
+      question: "What kind of results can I realistically expect from Google Ads?",
+      answer:
+        "If you're in a competitive area and your intake system is solid, most firms start seeing booked consults within 1-2 months. We track everything — so you'll know exactly where every dollar goes and what it brings in.",
+    },
+    {
+      question: "We’ve tried agencies before and got burnt. What makes you different?",
+      answer:
+        "We only work with law firms. No cafes, no ecommerce brands. Our team understands legal client behaviour, legal language, and how to build campaigns that convert — not just attract clicks.",
+    },
+    {
+      question: "How much does it cost to get started?",
+      answer: "Our pricing depends on your campaign size and goals. We’ll provide a custom quote after a quick consultation.",
+    },
+    {
+      question: "What if I’m not tech-savvy? Will I need to do a lot myself?",
+      answer: "Not at all. We handle all the technical setup and campaign management for you.",
+    },
+    {
+      question: "Do you lock clients into long-term contracts?",
+      answer: "Nope. We operate on a month-to-month basis so you stay flexible.",
+    },
+  ];
+
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  const toggle = (index: number) => {
+    setOpenIndex(openIndex === index ? null : index);
+  };
   return (
-    <div className="">
+    <div>
+      {/* Hero / Process Section */}
       <section id="process" className="relative flex items-center justify-center h-screen text-white overflow-hidden">
         <div className="absolute inset-0 -z-10">
           <ThreeScene />
         </div>
-
         <div className="text-center max-w-3xl px-4">
           <p className="inline-block mb-6 px-4 py-1.5 bg-gradient-to-r from-indigo-600/80 to-purple-600/80 border border-white/10 rounded-lg text-sm text-gray-200 shadow-md">
             Limitless Legal – Law Firm Growth Consulting
           </p>
-
           <h1 className="text-xl md:text-4xl font-extrabold leading-tight mb-6 tracking-tight">
             Work with the team that wrote the <br />
             playbook on{" "}
             <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
               Law Firm Growth
-            </span>
-            .
+            </span>.
           </h1>
-
           <p className="text-gray-300 text-lg mb-10">
             Stop babysitting your ads agency. Stop praying to the internet Gods
             for clients. Work directly with the{" "}
             <span className="font-semibold text-white">best in the world.</span>
           </p>
-
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="#contact"
@@ -176,12 +263,11 @@ export default function Home() {
         </div>
       </section>
 
-
+      {/* What we do Section */}
       <section id="what-we-do" className="text-white py-20 bg-[#010103] relative">
         <div className="max-w-4xl mx-auto text-center px-4">
           <h2 className="text-3xl md:text-5xl font-bold mb-6">
-            Secure high-value clients without chasing leads or micromanaging
-            your agency
+            Secure high-value clients without chasing leads or micromanaging your agency
           </h2>
           <p className="text-lg text-gray-400">
             This is exactly what we do. <br /> Three powerful pillars:
@@ -203,7 +289,6 @@ export default function Home() {
                   className="rounded-lg shadow-md group-hover:shadow-indigo-500/30 transition object-contain"
                 />
               </div>
-
               <h3 className="text-2xl font-bold mb-3 bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
                 {card.title}
               </h3>
@@ -213,7 +298,7 @@ export default function Home() {
         </div>
       </section>
 
-     
+      {/* Benefits Section */}
       <section id="benefits" className="text-white py-20 bg-[#010103] relative">
         <div className="max-w-4xl mx-auto text-center px-4">
           <h2 className="text-3xl md:text-5xl font-bold mb-6">
@@ -225,7 +310,6 @@ export default function Home() {
           </h2>
           <p>Discover the key benefits of partnering with us. </p>
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 px-4 max-w-6xl mx-auto">
           {benefits.map((benefit) => (
             <div
@@ -241,7 +325,7 @@ export default function Home() {
         </div>
       </section>
 
-
+      {/* Pricing Section */}
       <section id="pricing" className="text-white py-20 bg-[#010103] relative">
         <div className="max-w-4xl mx-auto text-center px-4">
           <h2 className="text-3xl md:text-5xl font-bold mb-6">
@@ -257,7 +341,6 @@ export default function Home() {
             </span>
           </p>
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 px-4 max-w-6xl mx-auto">
           {pricing.map((plan) => (
             <div
@@ -301,7 +384,7 @@ export default function Home() {
         </div>
       </section>
 
-
+      {/* Testimonials Section */}
       <section className="text-white py-20 bg-[#010103] relative">
         <div className="max-w-4xl mx-auto text-center px-4">
           <h2 className="text-3xl md:text-5xl font-bold mb-6">
@@ -345,11 +428,8 @@ export default function Home() {
         </div>
       </section>
 
-
       <section id="contact" className="text-white py-20 px-4">
-
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between">
-
           <div className="md:w-1/2 mb-10 md:mb-0 pr-0 md:pr-20">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight gradient-text">
               Take a step forward for your law firm.
@@ -358,25 +438,12 @@ export default function Home() {
               Whether you have questions or are ready to discuss your law firm's
               growth plan, we're here to help. Reach out today.
             </p>
-        
-            <div className="mt-8 text-gray-400 text-sm">
-              <div className="flex items-center mt-3">
-                <i className="fa-solid fa-location-dot text-lg mr-3 text-purple-400"></i>
-                <p>3 Broadway, Ultimo NSW 2007, Australia</p>
-              </div>
-              <div className="flex items-center mt-3">
-                <i className="fa-solid fa-location-dot text-lg mr-3 text-purple-400"></i>
-                <p>Jebel Ali Village, Dubai, United Arab Emirates</p>
-              </div>
-            </div>
           </div>
 
           <div className="md:w-1/2 flex justify-center">
             <div className="bg-gray-800 border border-gray-700 p-6 rounded-3xl max-w-sm w-full shadow-2xl">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold">
-                  Law Firm Strategy Call
-                </h2>
+                <h2 className="text-xl font-semibold">Law Firm Strategy Call</h2>
                 <Image
                   src="https://placehold.co/50x50/333333/cccccc?text=P"
                   alt="Profile Picture"
@@ -385,7 +452,6 @@ export default function Home() {
                   className="rounded-full border-2 border-purple-400"
                 />
               </div>
-
 
               <div className="mt-6 space-y-3 text-gray-300 text-sm">
                 <div className="flex items-center">
@@ -400,25 +466,102 @@ export default function Home() {
                   <i className="fa-solid fa-globe mr-3 text-purple-400"></i>
                   <span>Australia/Sydney Time</span>
                 </div>
-               
               </div>
 
-              <form action="">
-                <label htmlFor="">Select Your Slot</label>
-                <input
-                  type="datetime-local"
-                  name="date"
-                  id="date"
-                  className="mt-2 w-full py-2 px-4 border border-gray-600 rounded-lg"
-                />
-              </form>
+              <form onSubmit={handleSubmit} className="bg-gray-800 p-8 rounded-xl shadow-xl w-full max-w-md space-y-4">
+                <h2 className="text-2xl font-bold mb-4 text-center">Book Your Slot</h2>
 
-     
-              <button className="mt-6 w-full py-2 px-4 bg-purple-600 hover:bg-purple-500 text-white rounded-lg shadow-lg font-semibold transition-colors">
-                Confirm Appointment
-              </button>
+                <div className="flex flex-col">
+                  <label htmlFor="name" className="mb-1">Name</label>
+                  <input
+                    id="name"
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                    className="p-2 rounded bg-gray-700 text-white border border-gray-600"
+                    required
+                  />
+                </div>
+
+                <div className="flex flex-col">
+                  <label htmlFor="email" className="mb-1">Email</label>
+                  <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    className="p-2 rounded bg-gray-700 text-white border border-gray-600"
+                    required
+                  />
+                </div>
+
+                <div className="flex flex-col">
+                  <label htmlFor="phone" className="mb-1">Phone</label>
+                  <input
+                    id="phone"
+                    type="tel"
+                    value={phone}
+                    onChange={e => setPhone(e.target.value)}
+                    className="p-2 rounded bg-gray-700 text-white border border-gray-600"
+                    required
+                  />
+                </div>
+
+                <div className="flex flex-col">
+                  <label htmlFor="slot" className="mb-1">Select Slot</label>
+                  <select
+                    id="slot"
+                    value={selectedSlot}
+                    onChange={e => setSelectedSlot(e.target.value)}
+                    className="p-2 rounded bg-gray-700 text-white border border-gray-600"
+                    required
+                  >
+                    <option value="">-- Choose a Slot --</option>
+                    {slots.map(slot => (
+                      <option key={slot.id} value={slot.id} disabled={slot.booked}>
+                        {new Date(slot.date).toLocaleString()} {slot.booked ? "(Booked)" : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full py-2 px-4 bg-purple-600 hover:bg-purple-500 rounded-lg font-semibold transition"
+                >
+                  Confirm Appointment
+                </button>
+              </form>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="text-white py-20 bg-[#010103] relative">
+        <div className="max-w-4xl mx-auto text-center px-4">
+          <h2 className="text-3xl md:text-5xl font-bold mb-6">
+            Questions? Read this
+          </h2>
+          <p>These are questions we actually get. Read it. Might be useful.</p>
+        </div>
+
+        <div className="mt-16 px-4 max-w-4xl mx-auto space-y-4">
+          {faqs.map((faq, index) => (
+            <div
+              key={index}
+              className="bg-[#1a1a1a] rounded-lg overflow-hidden"
+            >
+              <button
+                onClick={() => toggle(index)}
+                className="w-full text-left px-6 py-4 flex justify-between items-center focus:outline-none"
+              >
+                <span>{faq.question}</span>
+                <span className="text-xl">{openIndex === index ? "-" : "+"}</span>
+              </button>
+              {openIndex === index && (
+                <div className="px-6 pb-4 text-gray-300">{faq.answer}</div>
+              )}
+            </div>
+          ))}
         </div>
       </section>
     </div>
